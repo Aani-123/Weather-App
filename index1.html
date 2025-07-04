@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Weather App - Easy Tutorials</title>
+   <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+  <div class="card">
+    <div class="search">
+      <input type="text" placeholder="Enter city name" spellcheck="false">
+      <button aria-label="Search">
+        🔍
+      </button>
+    </div>
+    <div class="error">
+      <p>❗ Invalid city name</p>
+    </div>
+    <div class="weather">
+      <img src="rain.png" class="weather-icon" alt="Weather icon">
+      <h1 class="temp"></h1>
+      <h2 class="city"></h2>
+      <div class="details">
+        <div class="col">
+          <p class="humidity"></p>
+          <p>Humidity</p>
+        </div>
+        <div class="col">
+          <p class="wind"></p>
+          <p>Wind Speed</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = "7a8acbd18de933270e27efc079fc71f7";
+
+    async function checkWeather(city) {
+      const url = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=${encodeURIComponent(city)}&appid=${apiKey}`;
+      try {
+        const response = await fetch(url);
+        if (response.status === 404) {
+          throw new Error("City not found");
+        }
+        const data = await response.json();
+
+        document.querySelector(".city").textContent = `${data.name}, ${data.sys.country}`;
+        document.querySelector(".temp").textContent = `${Math.round(data.main.temp)}°C`;
+        document.querySelector(".humidity").textContent = `${data.main.humidity}%`;
+        document.querySelector(".wind").textContent = `${data.wind.speed} km/h`;
+
+        const condition = data.weather[0].main;
+        const icons = {
+          Clouds: "clouds.png",
+          Clear: "clear.png",
+          Rain: "rain.png",
+          Drizzle: "drizzle.png",
+          Mist: "mist.png"
+        };
+        document.querySelector(".weather-icon").src = icons[condition] || "default.png";
+
+        document.querySelector(".error").style.display = "none";
+        document.querySelector(".weather").style.display = "block";
+      } catch (err) {
+        console.error(err);
+        document.querySelector(".weather").style.display = "none";
+        document.querySelector(".error").style.display = "block";
+      }
+    }
+
+    document.querySelector(".search button").addEventListener("click", () => {
+      const city = document.querySelector(".search input").value.trim();
+      if (city) checkWeather(city);
+    });
+  </script>
+</body>
+</html>
